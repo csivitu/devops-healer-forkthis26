@@ -55,6 +55,7 @@ staging_deploy:
   image: ubuntu:22.04
   script:
     - echo "preparing staging deployment"
+    - sed -i 's/\r$//' ./deploy.sh
     - chmod +x ./deploy.sh
     - echo "executing deployment script"
     - ./deploy.sh
