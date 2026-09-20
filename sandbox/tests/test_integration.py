@@ -1,6 +1,7 @@
 import os
 import psycopg2
 import pytest
+from datetime import datetime, timezone
 
 def get_db_connection():
     # helper fixture to connect to the test database
@@ -25,7 +26,7 @@ def test_insert_telemetry_event():
     # verify write operations to the service logs table
     conn = get_db_connection()
     cursor = conn.cursor()
-    current_time = datetime.now()
+    current_time = datetime.now(timezone.utc)
     cursor.execute("""
         INSERT INTO service_logs (event_name) 
         VALUES ('integration_test_ping') 
