@@ -26,24 +26,32 @@ build_binary:
   stage: build
   image: python:3.9-slim
   script:
+    - cd sandbox
+    - pip install -r requirements.txt
     - echo "generating environment secrets"
     - echo "POSTGRES_DB=app_db" > .env
     - echo "POSTGRES_USER=admin" >> .env
     - pyinstaller --onefile app.py
 
+  artifacts:
+    paths:
+      - sandbox/.env
+      - sandbox/dist/app
+
 integration_test:
   stage: integration-test
   script:
+    - cd sandbox
     - docker-compose -f docker-compose.yml up -d --build
     - |
       DB_READY=false
       echo "waiting for database..."
-      docker-compose logs db | while read line; do
+      while read line; do
         if [[ "$line" == *"ready to accept connections"* ]]; then
           DB_READY=true
           break
         fi
-      done
+      done < <(docker-compose logs db)
       if [ "$DB_READY" = false ]; then
         echo "database timeout"
         exit 1
@@ -54,6 +62,7 @@ staging_deploy:
   stage: staging-deploy
   image: ubuntu:22.04
   script:
+    - cd sandbox
     - echo "preparing staging deployment"
     - chmod +x ./deploy.sh
     - echo "executing deployment script"
