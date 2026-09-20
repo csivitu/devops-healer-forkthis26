@@ -1,4 +1,4 @@
-image: docker:20.10.16
+﻿image: docker:20.10.16
 
 stages:
   - build
@@ -30,6 +30,11 @@ build_binary:
     - echo "POSTGRES_DB=app_db" > .env
     - echo "POSTGRES_USER=admin" >> .env
     - pyinstaller --onefile app.py
+  artifacts:
+    paths:
+      - dist/
+      - .env
+    expire_in: 1 hour
 
 integration_test:
   stage: integration-test
@@ -38,12 +43,12 @@ integration_test:
     - |
       DB_READY=false
       echo "waiting for database..."
-      docker-compose logs db | while read line; do
+      while read -r line; do
         if [[ "$line" == *"ready to accept connections"* ]]; then
           DB_READY=true
           break
         fi
-      done
+      done < <(docker-compose logs -f db)
       if [ "$DB_READY" = false ]; then
         echo "database timeout"
         exit 1
@@ -60,3 +65,7 @@ staging_deploy:
     - ./deploy.sh
   environment:
     name: staging
+
+
+
+
