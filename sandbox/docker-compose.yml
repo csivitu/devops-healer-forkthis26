@@ -8,6 +8,10 @@ services
       dockerfile: Dockerfile
     container_name: self_healing_app
     restart: unless-stopped
+    # do not start the app until postgres reports healthy
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       - DB_HOST=db
       - POSTGRES_USER=admin
