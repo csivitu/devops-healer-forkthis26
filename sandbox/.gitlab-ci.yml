@@ -6,6 +6,7 @@ stages:
   - staging-deploy
 
 variables:
+  GIT_SUBMODULE_STRATEGY: recursive
   DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
   POSTGRES_DB: app_db
