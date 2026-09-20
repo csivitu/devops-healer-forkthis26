@@ -13,13 +13,13 @@ services
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=secret
       - POSTGRES_DB=app_db
-    # bind to the default postgres port so we can test it locally
-    ports:
-      - "5432:5432"
 
   db:
     image: postgres:13-alpine
     container_name: self_healing_db
+    # publish on a random free host port so parallel runs do not collide
+    ports:
+      - "5432"
     restart: unless-stopped
     environment:
       POSTGRES_USER: admin
