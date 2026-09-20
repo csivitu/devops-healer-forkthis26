@@ -1,4 +1,4 @@
-version: '3.8'
+﻿version: '3.8'
 
 # define the main application and database services for the local environment
 services
@@ -15,7 +15,7 @@ services
       - POSTGRES_DB=app_db
     # bind to the default postgres port so we can test it locally
     ports:
-      - "5432:5432"
+      - "5432"
 
   db:
     image: postgres:13-alpine
