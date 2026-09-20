@@ -16,8 +16,8 @@ services:
   - docker:20.10.16-dind
 
 cache:
-  # store python packages so we do not have to download them on every single run
-  key: "global-dependency-cache-v1"
+  # scope the cache per branch so one branch cannot poison another's dependencies
+  key: "$CI_COMMIT_REF_SLUG"
   paths:
     - .venv/
     - ~/.cache/pip
