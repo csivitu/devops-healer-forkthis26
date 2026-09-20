@@ -30,6 +30,10 @@ build_binary:
     - echo "POSTGRES_DB=app_db" > .env
     - echo "POSTGRES_USER=admin" >> .env
     - pyinstaller --onefile app.py
+  # every stage starts from a clean checkout, so hand the generated .env forward explicitly
+  artifacts:
+    paths:
+      - .env
 
 integration_test:
   stage: integration-test
@@ -38,11 +42,13 @@ integration_test:
     - |
       DB_READY=false
       echo "waiting for database..."
-      docker-compose logs db | while read line; do
-        if [[ "$line" == *"ready to accept connections"* ]]; then
+      # no pipe into while here: that would run the loop in a subshell and lose DB_READY
+      for attempt in $(seq 1 30); do
+        if docker-compose logs db 2>&1 | grep -q "ready to accept connections"; then
           DB_READY=true
           break
         fi
+        sleep 2
       done
       if [ "$DB_READY" = false ]; then
         echo "database timeout"
