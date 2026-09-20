@@ -1,4 +1,4 @@
-image: docker:20.10.16
+﻿image: docker:20.10.16
 
 stages:
   - build
@@ -30,6 +30,10 @@ build_binary:
     - echo "POSTGRES_DB=app_db" > .env
     - echo "POSTGRES_USER=admin" >> .env
     - pyinstaller --onefile app.py
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 hour
 
 integration_test:
   stage: integration-test
