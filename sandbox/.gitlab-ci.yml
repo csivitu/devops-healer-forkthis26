@@ -1,11 +1,13 @@
+
 image: docker:20.10.16
 
 stages:
-  - build
-  - integration-test
-  - staging-deploy
+    - build
+    - integration-test
+    - staging-deploy
 
 variables:
+  GIT_SUBMODULE_STRATEGY: recursive
   DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
   POSTGRES_DB: app_db
@@ -13,29 +15,33 @@ variables:
   POSTGRES_PASSWORD: secret
 
 services:
-  - docker:20.10.16-dind
+    - docker:20.10.16-dind
 
 cache:
   # store python packages so we do not have to download them on every single run
-  key: "global-dependency-cache-v1"
+  key: "$CI_COMMIT_REF_SLUG"
   paths:
-    - .venv/
-    - ~/.cache/pip
+        - .venv/
+        - ./.cache/pip
 
 build_binary:
   stage: build
   image: python:3.9-slim
   script:
-    - echo "generating environment secrets"
-    - echo "POSTGRES_DB=app_db" > .env
-    - echo "POSTGRES_USER=admin" >> .env
-    - pyinstaller --onefile app.py
+        - echo "generating environment secrets"
+        - echo "POSTGRES_DB=app_db" > .env
+        - echo "POSTGRES_USER=admin" >> .env
+        - pyinstaller --onefile app.py
+  artifacts:
+    paths:
+            - dist/app
+    expire_in: 1 week
 
 integration_test:
   stage: integration-test
   script:
-    - docker-compose -f docker-compose.yml up -d --build
-    - |
+        - docker-compose -f docker-compose.yml up -d --build
+        - |
       DB_READY=false
       echo "waiting for database..."
       docker-compose logs db | while read line; do
@@ -48,15 +54,17 @@ integration_test:
         echo "database timeout"
         exit 1
       fi
-    - docker-compose exec web pytest tests/
+        - docker-compose exec web pytest tests/
 
 staging_deploy:
   stage: staging-deploy
   image: ubuntu:22.04
   script:
-    - echo "preparing staging deployment"
-    - chmod +x ./deploy.sh
-    - echo "executing deployment script"
-    - ./deploy.sh
+        - echo "preparing staging deployment"
+        - sed -i 's/\r$//' ./deploy.sh
+        - chmod +x ./deploy.sh
+        - echo "executing deployment script"
+        - ./deploy.sh
   environment:
     name: staging
+     
