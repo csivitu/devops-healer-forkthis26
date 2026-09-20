@@ -1,4 +1,4 @@
-image: docker:20.10.16
+﻿image: docker:20.10.16
 
 stages:
   - build
@@ -18,7 +18,7 @@ services:
 
 cache:
   # store python packages so we do not have to download them on every single run
-  key: "global-dependency-cache-v1"
+  key: "$CI_COMMIT_REF_SLUG-dependency-cache-v1"
   paths:
     - .venv/
     - ~/.cache/pip
