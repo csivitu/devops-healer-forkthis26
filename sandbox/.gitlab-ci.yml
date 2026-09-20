@@ -31,6 +31,10 @@ build_binary:
     - echo "POSTGRES_DB=app_db" > .env
     - echo "POSTGRES_USER=admin" >> .env
     - pyinstaller --onefile app.py
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 hour
 
 integration_test:
   stage: integration-test
