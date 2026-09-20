@@ -13,6 +13,7 @@ services
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=secret
       - POSTGRES_DB=app_db
+      - TZ=UTC
     # bind to the default postgres port so we can test it locally
     ports:
       - "5432:5432"
@@ -25,6 +26,8 @@ services
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: app_db
+      TZ: UTC
+      PGTZ: UTC
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin -d app_db"]
       interval: 3s
