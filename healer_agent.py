@@ -29,10 +29,10 @@ def generate_infrastructure_patch(logs, repo_context_path):
         "updated_content": """version: '3.8'
 services:
   web:
-    build: .
-    depends_on:
-      db:
-        condition: service_healthy
+    build:
+        context: 
+        dockerfile: Dockerfile
+
 """
     }
     return simulated_patch_payload
