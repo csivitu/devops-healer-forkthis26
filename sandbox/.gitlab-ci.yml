@@ -11,6 +11,7 @@ variables:
   POSTGRES_DB: app_db
   POSTGRES_USER: admin
   POSTGRES_PASSWORD: secret
+  GIT_SUBMODULE_STRATEGY: recursive
 
 services:
   - docker:20.10.16-dind
