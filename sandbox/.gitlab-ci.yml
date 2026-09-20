@@ -29,7 +29,7 @@ build_binary:
     - echo "generating environment secrets"
     - echo "POSTGRES_DB=app_db" > .env
     - echo "POSTGRES_USER=admin" >> .env
-    - pyinstaller --onefile app.py
+    - pyinstaller --onefile app.py`r`n  artifacts:`r`n    paths:`r`n      - dist/
 
 integration_test:
   stage: integration-test
@@ -60,3 +60,4 @@ staging_deploy:
     - ./deploy.sh
   environment:
     name: staging
+
