@@ -1,5 +1,3 @@
-version: '3.8'
-
 # define the main application and database services for the local environment
 services
   web:
