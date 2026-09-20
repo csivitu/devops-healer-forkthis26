@@ -1,9 +1,9 @@
 version: '3.8'
 
 # define the main application and database services for the local environment
-services
+services:
   web:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     container_name: self_healing_app
