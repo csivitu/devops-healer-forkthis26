@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import google.generativeai as genai
 from fastapi import FastAPI, Request, BackgroundTasks
 import git
 
@@ -20,22 +21,28 @@ api_key = os.getenv("LLM_API_KEY", "your-api-key-here")
 def generate_infrastructure_patch(logs, repo_context_path):
     # send the stack trace and repository context to the llm to generate a fix
     agent_logger.info("analyzing trace logs with llm to generate code patch")
-    
-    # you need to swap this out with your actual gemini or openai api call
-    llm_prompt = f"analyze these ci cd logs and fix the repository configuration: {logs}"
-    
-    simulated_patch_payload = {
-        "target_file": "docker-compose.yml",
-        "updated_content": """version: '3.8'
-services:
-  web:
-    build: .
-    depends_on:
-      db:
-        condition: service_healthy
-"""
-    }
-    return simulated_patch_payload
+
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel("gemini-1.5-flash")
+
+    llm_prompt = (
+        f"You are a DevOps expert. Analyze these CI/CD pipeline error logs and return ONLY valid JSON "
+        f"with two keys: 'target_file' (string, the file to fix) and 'updated_content' (string, the corrected file content).\n\n"
+        f"Error logs:\n{logs}\n\n"
+        f"Respond with JSON only, no markdown fences."
+    )
+
+    try:
+        response = model.generate_content(llm_prompt)
+        patch_payload = json.loads(response.text.strip())
+        agent_logger.info(f"llm returned patch targeting: {patch_payload.get('target_file')}")
+        return patch_payload
+    except Exception as e:
+        agent_logger.error(f"llm call failed: {e}, falling back to default patch")
+        return {
+            "target_file": "sandbox/docker-compose.yml",
+            "updated_content": "version: '3.8'\nservices:\n  web:\n    build: .\n    depends_on:\n      db:\n        condition: service_healthy\n"
+        }
 
 def deploy_patch_to_repository(repo_path, patch_payload, failure_id):
     # autonomously branch, commit, and push the llm generated patch
@@ -53,7 +60,9 @@ def deploy_patch_to_repository(repo_path, patch_payload, failure_id):
             
         repo.index.add([patch_payload["target_file"]])
         repo.index.commit(f"autonomous self healing patch for pipeline failure {failure_id}")
-        
+
+        origin = repo.remote(name="origin")
+        origin.push(refspec=f"{branch_name}:{branch_name}")
         agent_logger.info(f"successfully pushed patch branch '{branch_name}' to remote repository")
         return branch_name
         
