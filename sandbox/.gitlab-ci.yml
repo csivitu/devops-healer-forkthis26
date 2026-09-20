@@ -8,6 +8,8 @@ stages:
 variables:
   DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
+  # make the runner clone the infrastructure-templates submodule that deploy.sh sources
+  GIT_SUBMODULE_STRATEGY: recursive
   POSTGRES_DB: app_db
   POSTGRES_USER: admin
   POSTGRES_PASSWORD: secret
