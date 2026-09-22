@@ -16,6 +16,9 @@ services:
     # bind to the default postgres port so we can test it locally
     ports:
       - "5432:5432"
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:13-alpine
