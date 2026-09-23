@@ -25,12 +25,11 @@ def test_insert_telemetry_event():
     # verify write operations to the service logs table
     conn = get_db_connection()
     cursor = conn.cursor()
-    current_time = datetime.now()
     cursor.execute("""
         INSERT INTO service_logs (event_name) 
         VALUES ('integration_test_ping') 
         RETURNING id;
-    """,(current_time,))
+    """)
     inserted_id = cursor.fetchone()[0]
     conn.commit()
     cursor.execute("""
